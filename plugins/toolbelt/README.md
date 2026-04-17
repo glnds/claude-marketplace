@@ -39,6 +39,17 @@ synthesis → citation pass → validation). Output written to `./research/{date
 Not for quick lookups — spends tokens deliberately (~200K-700K per run). Optional flag:
 `--no-code` to skip codebase reconnaissance.
 
+### `code-audit`
+
+Read-only deep audit of a repository or subtree. Produces a severity-ranked Markdown report
+(`audit-<slug>-<YYYYMMDD>.md`) modelled on Trail-of-Bits-style findings (Severity × Difficulty,
+short/long-term recommendations, effort estimate). Six dimensions in NFR priority order: security
+(OWASP Top 10:2025, ASVS v5) → resilience → cost efficiency → architecture & coupling →
+documentation freshness → monitoring gaps. Never modifies the audited project — the only write is
+the report itself. Falls back to ripgrep heuristics when scanners (`gitleaks`, `trivy`, `semgrep`,
+`osv-scanner`, `infracost`, `checkov`) are absent. Optional flag:
+`--scope=security|resilience|cost|architecture|docs|monitoring|all`.
+
 ## Prerequisites
 
 - Claude Code CLI with plugin support

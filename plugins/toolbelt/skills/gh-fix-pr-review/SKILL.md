@@ -3,6 +3,7 @@ name: gh-fix-pr-review
 description: Use when the user asks to fix PR review feedback, address Claude Code Action review comments, resolve unresolved review threads, handle inline review suggestions, or work through review issues tagged CRITICAL/HIGH/MEDIUM/LOW on the current PR. Covers both GraphQL review threads and REST PR issue comments, picks the highest severity by default, implements and verifies fixes, then replies on the review.
 argument-hint: [issue_number] [--all] [--skip-tests] [--inline] [--comments] [--resolve] [--dry-run] [--pr <number>]
 allowed-tools: Bash(gh:*) Bash(git:*) Bash(make:*) Read Write Edit
+disable-model-invocation: true
 ---
 
 # gh-fix-pr-review

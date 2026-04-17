@@ -1,6 +1,9 @@
 ---
 name: gh-create-issue
 description: Use when the user asks to create one or more GitHub issues, file a ticket, open a bug report, write up a feature request, or break a plan/epic into trackable issues. Produces well-defined issues with clear requirements, the right level of detail, and (for implementation-ready issues) a TDD plan suitable for Superpowers pickup.
+argument-hint: "[title-or-plan-text]"
+allowed-tools: Bash(gh:*) Read Write WebFetch
+disable-model-invocation: true
 ---
 
 # gh-create-issue

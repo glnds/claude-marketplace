@@ -2,7 +2,8 @@
 name: deep-research
 description: Use when the user asks for research, an audit, a migration analysis, a library comparison, a CVE impact assessment, a technology evaluation, or any question that requires both local codebase context AND current web sources. Produces a long-form narrative report (3000-8000 words) written to disk. NOT for quick lookups — this spends tokens deliberately. Triggers on phrases like "research X", "audit Y", "how does recent X affect us", "compare A vs B", "investigate".
 argument-hint: [research topic or question]
-allowed-tools: Agent, Bash, Read, Write, Glob, Grep, WebSearch, WebFetch
+allowed-tools: Agent Bash Read Write Glob Grep WebSearch WebFetch
+disable-model-invocation: true
 ---
 
 # deep-research
