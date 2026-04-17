@@ -1,0 +1,14 @@
+{
+  "name": "claude-marketplace",
+  "owner": {
+    "name": "Gert Leenders",
+    "email": "leenders.gert@gmail.com"
+  },
+  "plugins": [
+    {
+      "name": "toolbelt",
+      "source": "./plugins/toolbelt",
+      "description": "My collection of day-to-day tools to get the job done."
+    }
+  ]
+}
