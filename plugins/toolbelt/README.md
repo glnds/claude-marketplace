@@ -65,12 +65,31 @@ constructive-reviewer loop.
 
 > **⚠️ Installing the plugin is not enough.** The main agent only dispatches this skill
 > automatically when a routing rule is present in your project `CLAUDE.md`. Paste the
-> ready-to-paste block from the [skill's README](./skills/adversarial-plan-review/README.md#installation)
-> into your `CLAUDE.md`, adjusting the `docs/plans/` and `docs/specs/` paths to match your
-> layout. Without the routing rule, you must invoke the skill manually each time.
+> block below into your `CLAUDE.md`, adjusting the `docs/plans/` and `docs/specs/` paths
+> to match your layout. Without the routing rule, you must invoke the skill manually
+> each time.
+
+```markdown
+## Plan review routing
+
+When `writing-plans` completes and produces a plan file in `docs/plans/`,
+dispatch `adversarial-plan-review` as a subagent with only the plan path
+and spec path as input, before invoking `subagent-driven-development`.
+
+- On verdict PASS: proceed to implementation.
+- On verdict NEEDS REWORK: re-invoke `writing-plans` with the findings file
+  at `docs/plans/<plan>.review.md` as additional input. Do not invoke the
+  review skill a second time in the same session; if the reworked plan
+  still fails on next review, promote to NEEDS HUMAN.
+- On verdict NEEDS HUMAN: halt and surface the review file to the user.
+
+Skip the review entirely on plans with fewer than three tasks, or tasks
+that modify a single file. The inline self-review in writing-plans already
+covers those cases.
+```
 
 See [`skills/adversarial-plan-review/README.md`](./skills/adversarial-plan-review/README.md) for
-the full design rationale, trade-offs, and the CLAUDE.md routing block.
+the full design rationale and trade-offs.
 
 ### `code-audit`
 

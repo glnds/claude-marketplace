@@ -2,7 +2,7 @@
 name: adversarial-plan-review
 description: Destructive, diagnosis-only pre-flight review of an implementation plan. Runs as a dispatched subagent with fresh context between writing-plans and subagent-driven-development. Surfaces failure modes the inline plan-writing checklists structurally cannot see, emits severity-tagged findings and a binary verdict. No remediation, no rewrites, no second pass.
 when_to_use: After writing-plans completes and before subagent-driven-development starts. Multi-task plans (3+ tasks), plans that span multiple services or introduce new dependencies, plans that rely on sequential commits, any plan where a mid-run failure would require manual recovery.
-when_not_to_use: Single-file or single-task plans (the inline self-review in writing-plans already suffices). Plans that have already failed this review once in the same session (re-running yields diminishing returns: if the second pass fails, the plan needs human reshaping, not more review).
+when_not_to_use: "Single-file or single-task plans (the inline self-review in writing-plans already suffices). Plans that have already failed this review once in the same session (re-running yields diminishing returns: if the second pass fails, the plan needs human reshaping, not more review)."
 ---
 <!-- markdownlint-disable MD013 MD040 -->
 
