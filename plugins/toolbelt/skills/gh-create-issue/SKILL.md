@@ -26,6 +26,8 @@ invoked as a slash command, that input is passed as `$ARGUMENTS`.
 - ALWAYS include testable acceptance criteria in implementation-ready issues.
 - ALWAYS ask about edge cases explicitly for implementation-ready issues.
 - ALWAYS link sub-issues to their parent epic and update the epic checklist after creation.
+- NEVER prompt the user for blockers; parse them from the original input only. If parsing is
+  ambiguous, fall back to prose and continue.
 - If requirements are vague, ask follow-up questions before proceeding.
 
 ## Step 0: Analyse the Input
@@ -58,6 +60,34 @@ If the level is not clear, ask explicitly:
 > (ready to pick up and build)?
 
 Wait for answers before proceeding.
+
+### C. Blocker hint (parse, do not ask)
+
+Scan the raw input for a "blocked by" phrase, case-insensitive, and extract every issue number
+that follows it. Store the result in an internal `blockers: list[int]`. **Never prompt the user
+for blockers** — blockers are the exception, not the rule, and an extra question would annoy the
+90% case that has none. If the phrase is ambiguous, skip the native link and record the
+relationship in prose only (see Step 4).
+
+Phrases that **must** trigger extraction:
+
+- `blocked by 211`
+- `blocked by issue 211`
+- `blocked by #211`
+- `blocked by #211 and #219`
+- `blocked by 211, 219, and 223`
+- `…, blocked by 211, also we need …`
+
+Phrases that **must not** trigger extraction:
+
+- `we might be blocked later` — no number.
+- `this blocks 211` — inverse direction (out of scope).
+- `depends on #211` — different phrasing, not covered here.
+
+Extraction rule: find the span starting at `blocked by` and continuing until the next
+unrelated clause (sentence end, new topic), then collect every `#?\d+` inside that span. Do not
+rely on a single regex — the repeated-capture form loses intermediate matches. If `blockers`
+ends up empty, proceed as before with no change in behaviour.
 
 ## Step 1: Discover Repository Labels
 
@@ -139,6 +169,7 @@ Present a summary for confirmation.
 **Edge Cases** (implementation-ready only):
 - [edge case]: [handling]
 **Proposed Labels**: [list]
+**Blocked by** (only if parsed from input): #<num>, #<num>
 **Documentation Impact** (implementation-ready only): [files/pages to update]
 ```
 
@@ -161,6 +192,47 @@ Wait for confirmation.
 ## Step 4: Create the Issue(s)
 
 Use `gh issue create` with the appropriate template below. Apply the agreed labels with `--label`.
+
+If `blockers` (from Step 0C) is non-empty:
+
+1. Append a **Dependencies** section to the issue body before creation so the link is visible in
+   prose as well as in the GitHub sidebar:
+
+   ```text
+   ## Dependencies
+
+   Blocked by #<num>.
+   ```
+
+   Use a comma-separated list for multiple: `Blocked by #<num>, #<num>.`
+
+2. After `gh issue create` returns the new issue number, link each blocker via the native
+   GitHub relationship using the `addBlockedBy` GraphQL mutation. Use the helper below:
+
+   ```bash
+   link_blocker() {
+     local blocked_num=$1 blocker_num=$2 repo=$3
+     local issue_id blocker_id
+     issue_id=$(gh issue view "$blocked_num"  --repo "$repo" --json id --jq .id)
+     blocker_id=$(gh issue view "$blocker_num" --repo "$repo" --json id --jq .id)
+
+     gh api graphql \
+       -f query='mutation($i: ID!, $b: ID!) {
+         addBlockedBy(input: {issueId: $i, blockingIssueId: $b}) {
+           issue { number } blockingIssue { number }
+         }
+       }' \
+       -F i="$issue_id" -F b="$blocker_id"
+   }
+   ```
+
+   Use `-F` (not `-f`) for the ID variables so `gh` passes them through the GraphQL `variables`
+   payload as typed strings — idiomatic for `ID!` arguments.
+
+3. **Idempotency**: if the link already exists, GitHub returns a validation error with the
+   string `Target issue has already been taken`. Treat that specific message as a no-op. Any
+   other failure must be reported to the user but **must not abort** the run — the issue is
+   already created and the link can be retried by hand.
 
 For epics with sub-issues:
 

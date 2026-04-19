@@ -6,6 +6,22 @@ All notable changes to the `toolbelt` plugin are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] - 2026-04-19
+
+### Added
+
+- `gh-create-issue`: parse "blocked by" hints from the input prompt and create the native GitHub
+  dependency via the `addBlockedBy` GraphQL mutation, so the relationship shows up in the sidebar
+  and project views, not only in the issue body. Parsing is prompt-only — no new question is
+  asked, on the design principle that blockers are the exception, not the rule, and an extra
+  prompt would annoy the 90% case that has none. Triggers on phrases like `blocked by 211`,
+  `blocked by issue 211`, `blocked by #211`, `blocked by #211 and #219`. Non-triggers documented
+  (`we might be blocked later`, `this blocks 211`, `depends on #211`). Links via
+  `gh api graphql` after `gh issue create` returns the new number; the `Target issue has already
+  been taken` validation error is swallowed as a no-op so re-runs are idempotent. Any other
+  mutation failure is surfaced but does not abort the run — the issue is already created. A
+  `## Dependencies` section is appended to the issue body so the link is visible in prose too.
+
 ## [0.6.0] - 2026-04-19
 
 ### Added
